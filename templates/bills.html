@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+{% block title %}All Bills - Rushi Salon{% endblock %}
+{% block content %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a202c;
+    }
+    
+    .bills-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .btn {
+        padding: 0.875rem 1.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #B7A3E3 0%, #9880d1 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(183, 163, 227, 0.3);
+    }
+    
+    .btn-primary:hover {
+        box-shadow: 0 6px 20px rgba(183, 163, 227, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .bills-table-wrapper {
+        overflow-x: auto;
+        margin-top: 1.5rem;
+    }
+    
+    .bills-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .bills-table thead th {
+        background: #f7fafc;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    
+    .bills-table thead th:first-child {
+        border-top-left-radius: 12px;
+        padding-left: 1.5rem;
+    }
+    
+    .bills-table thead th:last-child {
+        border-top-right-radius: 12px;
+        padding-right: 1.5rem;
+    }
+    
+    .bills-table tbody tr {
+        transition: background 0.2s;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .bills-table tbody tr:hover {
+        background: #f7fafc;
+    }
+    
+    .bills-table tbody tr:last-child {
+        border-bottom: none;
+    }
+    
+    .bills-table tbody td {
+        padding: 1.25rem 1rem;
+        color: #2d3748;
+        vertical-align: top;
+    }
+    
+    .bills-table tbody td:first-child {
+        padding-left: 1.5rem;
+    }
+    
+    .bills-table tbody td:last-child {
+        padding-right: 1.5rem;
+    }
+    
+    .bill-id {
+        font-family: 'Courier New', monospace;
+        font-size: 0.8rem;
+        color: #718096;
+        background: #f7fafc;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+    
+    .customer-info {
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    .customer-phone {
+        color: #718096;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    .services-list {
+        margin: 0;
+        padding-left: 1.25rem;
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+    
+    .services-list li {
+        margin-bottom: 0.25rem;
+    }
+    
+    .amount {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #B7A3E3;
+    }
+    
+    .status-select {
+        padding: 0.5rem 0.75rem;
+        border-radius: 20px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-select.paid {
+        background: rgba(72, 187, 120, 0.15);
+        color: #22543d;
+    }
+    
+    .status-select.unpaid {
+        background: rgba(255, 143, 143, 0.2);
+        color: #742a2a;
+    }
+    
+    .status-select:hover {
+        transform: scale(1.05);
+    }
+    
+    .date-cell {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .action-btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        background: linear-gradient(135deg, #C2E2FA 0%, #a0d4f7 100%);
+        color: #1a365d;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .action-btn:hover {
+        box-shadow: 0 4px 12px rgba(194, 226, 250, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #a0aec0;
+    }
+    
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state p {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        color: #718096;
+    }
+    
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-success {
+        background: rgba(72, 187, 120, 0.15);
+        color: #22543d;
+        border: 1px solid rgba(72, 187, 120, 0.3);
+    }
+    
+    .alert-error {
+        background: rgba(255, 143, 143, 0.15);
+        color: #742a2a;
+        border: 1px solid rgba(255, 143, 143, 0.3);
+    }
+    
+    @media (max-width: 1024px) {
+        .bills-table {
+            font-size: 0.85rem;
+        }
+        
+        .bills-table thead th,
+        .bills-table tbody td {
+            padding: 0.875rem 0.75rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .bills-container {
+            padding: 1.5rem;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .bills-table-wrapper {
+            margin-left: -1.5rem;
+            margin-right: -1.5rem;
+            padding: 0 1.5rem;
+        }
+        
+        .bills-table {
+            font-size: 0.8rem;
+        }
+        
+        .bills-table thead th,
+        .bills-table tbody td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <h1>📋 All Bills</h1>
+    <a href="{{ url_for('billing') }}" class="btn btn-primary">
+        <span>➕</span> Create New Bill
+    </a>
+</div>
+
+<div class="bills-container">
+    <div id="alertContainer"></div>
+    
+    {% if bills %}
+    <div class="bills-table-wrapper">
+        <table class="bills-table">
+            <thead>
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Customer</th>
+                    <th>Services</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in bills %}
+                <tr data-id="{{ bill._id }}">
+                    <td><span class="bill-id">{{ bill._id }}</span></td>
+                    <td>
+                        <div class="customer-info">{{ bill.customer_name }}</div>
+                        <div class="customer-phone">{{ bill.customer_phone }}</div>
+                    </td>
+                    <td>
+                        <ul class="services-list">
+                            {% for service in bill.services %}
+                            <li>{{ service.name }} × {{ service.quantity }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td><span class="amount">Rs. {{ "%.2f"|format(bill.total_amount) }}</span></td>
+                    <td>
+                        <select class="status-select {% if bill.status == 'paid' %}paid{% else %}unpaid{% endif %}" 
+                                data-bill-id="{{ bill._id }}" 
+                                onchange="updateStatus('{{ bill._id }}', this.value)">
+                            <option value="paid" {% if bill.status == 'paid' %}selected{% endif %}>Paid</option>
+                            <option value="unpaid" {% if bill.status == 'unpaid' %}selected{% endif %}>Unpaid</option>
+                        </select>
+                    </td>
+                    <td class="date-cell">{{ bill.created_at.strftime('%b %d, %Y') }}<br>{{ bill.created_at.strftime('%I:%M %p') }}</td>
+                    <td>
+                        <a href="/bills/{{ bill._id }}/pdf" class="action-btn" target="_blank">
+                            <span>📄</span> PDF
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <p>No bills found</p>
+        <a href="{{ url_for('billing') }}" class="btn btn-primary">
+            <span>➕</span> Create Your First Bill
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.innerHTML = `<span>${type === 'success' ? '✓' : '⚠'}</span> ${message}`;
+    document.getElementById('alertContainer').appendChild(alertDiv);
+    setTimeout(() => alertDiv.remove(), 4000);
+}
+
+async function updateStatus(billId, newStatus) {
+    try {
+        const response = await fetch(`/api/bills/${billId}/status`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({status: newStatus})
+        });
+        
+        if (response.ok) {
+            showAlert('Bill status updated successfully!', 'success');
+            const select = document.querySelector(`select[data-bill-id="${billId}"]`);
+            select.className = `status-select ${newStatus}`;
+        }
+    } catch (error) {
+        showAlert('Error updating bill status', 'error');
+    }
+}
+</script>
+{% endblock %}

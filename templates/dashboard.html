@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Rushi Salon{% endblock %}
+{% block content %}
+<style>
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-header p {
+        color: #718096;
+        font-size: 1.1rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+    }
+    
+    .stat-card.customers::before { background: #FF8F8F; }
+    .stat-card.services::before { background: #FFF1CB; }
+    .stat-card.bills::before { background: #C2E2FA; }
+    .stat-card.earnings::before { background: #B7A3E3; }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card.customers .stat-icon {
+        background: rgba(255, 143, 143, 0.15);
+        color: #FF8F8F;
+    }
+    
+    .stat-card.services .stat-icon {
+        background: rgba(255, 241, 203, 0.5);
+        color: #d4a017;
+    }
+    
+    .stat-card.bills .stat-icon {
+        background: rgba(194, 226, 250, 0.4);
+        color: #4299e1;
+    }
+    
+    .stat-card.earnings .stat-icon {
+        background: rgba(183, 163, 227, 0.2);
+        color: #B7A3E3;
+    }
+    
+    .stat-label {
+        color: #718096;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        line-height: 1;
+    }
+    
+    .recent-bills-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin: 0;
+    }
+    
+    .view-all-link {
+        color: #B7A3E3;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: color 0.3s;
+    }
+    
+    .view-all-link:hover {
+        color: #9880d1;
+    }
+    
+    .bills-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .bills-table thead th {
+        background: #f7fafc;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .bills-table thead th:first-child {
+        border-top-left-radius: 12px;
+    }
+    
+    .bills-table thead th:last-child {
+        border-top-right-radius: 12px;
+    }
+    
+    .bills-table tbody tr {
+        transition: background 0.2s;
+    }
+    
+    .bills-table tbody tr:hover {
+        background: #f7fafc;
+    }
+    
+    .bills-table tbody td {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        color: #2d3748;
+    }
+    
+    .bill-id {
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: #718096;
+    }
+    
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .status-paid {
+        background: rgba(72, 187, 120, 0.15);
+        color: #22543d;
+    }
+    
+    .status-unpaid {
+        background: rgba(255, 143, 143, 0.2);
+        color: #742a2a;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .action-btn.primary {
+        background: linear-gradient(135deg, #B7A3E3 0%, #9880d1 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(183, 163, 227, 0.3);
+    }
+    
+    .action-btn.primary:hover {
+        box-shadow: 0 6px 20px rgba(183, 163, 227, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .action-btn.secondary {
+        background: linear-gradient(135deg, #C2E2FA 0%, #a0d4f7 100%);
+        color: #1a365d;
+        box-shadow: 0 4px 15px rgba(194, 226, 250, 0.3);
+    }
+    
+    .action-btn.secondary:hover {
+        box-shadow: 0 6px 20px rgba(194, 226, 250, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .action-btn.tertiary {
+        background: linear-gradient(135deg, #FFF1CB 0%, #f5e5a8 100%);
+        color: #7c5d10;
+        box-shadow: 0 4px 15px rgba(255, 241, 203, 0.3);
+    }
+    
+    .action-btn.tertiary:hover {
+        box-shadow: 0 6px 20px rgba(255, 241, 203, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #a0aec0;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .bills-table {
+            font-size: 0.875rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="dashboard-header">
+    <h1>✨ Welcome Back</h1>
+    <p>Here's what's happening with your salon today</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card customers">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total Customers</div>
+        <div class="stat-value">{{ stats.total_customers }}</div>
+    </div>
+    
+    <div class="stat-card services">
+        <div class="stat-icon">✂️</div>
+        <div class="stat-label">Total Services</div>
+        <div class="stat-value">{{ stats.total_services }}</div>
+    </div>
+    
+    <div class="stat-card bills">
+        <div class="stat-icon">📄</div>
+        <div class="stat-label">Total Bills</div>
+        <div class="stat-value">{{ stats.total_bills }}</div>
+    </div>
+    
+    <div class="stat-card earnings">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">Total Earnings</div>
+        <div class="stat-value">Rs. {{ "%.2f"|format(stats.total_earnings) }}</div>
+    </div>
+</div>
+
+<div class="recent-bills-section">
+    <div class="section-header">
+        <h2>Recent Bills</h2>
+        <a href="{{ url_for('bills') }}" class="view-all-link">View All →</a>
+    </div>
+    
+    {% if recent_bills %}
+    <table class="bills-table">
+        <thead>
+            <tr>
+                <th>Bill ID</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bill in recent_bills %}
+            <tr>
+                <td><span class="bill-id">{{ bill._id }}</span></td>
+                <td><strong>{{ bill.customer_name }}</strong></td>
+                <td><strong>Rs. {{ "%.2f"|format(bill.total_amount) }}</strong></td>
+                <td>
+                    {% if bill.status == 'paid' %}
+                    <span class="status-badge status-paid">Paid</span>
+                    {% else %}
+                    <span class="status-badge status-unpaid">Unpaid</span>
+                    {% endif %}
+                </td>
+                <td>{{ bill.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <p>No bills yet. Create your first bill to get started!</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="action-buttons">
+    <a href="{{ url_for('billing') }}" class="action-btn primary">
+        <span>➕</span> Create New Bill
+    </a>
+    <a href="{{ url_for('customers') }}" class="action-btn secondary">
+        <span>👥</span> Manage Customers
+    </a>
+    <a href="{{ url_for('services') }}" class="action-btn tertiary">
+        <span>✂️</span> Manage Services
+    </a>
+</div>
+
+{% endblock %}

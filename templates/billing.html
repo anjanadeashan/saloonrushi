@@ -1,0 +1,561 @@
+{% extends "base.html" %}
+{% block title %}New Bill - Rushi Salon{% endblock %}
+{% block content %}
+<style>
+    .billing-header {
+        margin-bottom: 2rem;
+    }
+    
+    .billing-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+    }
+    
+    .billing-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-group select,
+    .form-group input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: #f7fafc;
+    }
+    
+    .form-group select:focus,
+    .form-group input:focus {
+        outline: none;
+        border-color: #B7A3E3;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(183, 163, 227, 0.1);
+    }
+    
+    .services-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1rem;
+        background: #fafbfc;
+    }
+    
+    .service-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding: 1.25rem;
+        background: white;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+        gap: 1rem;
+    }
+    
+    .service-item:hover {
+        border-color: #C2E2FA;
+        box-shadow: 0 4px 12px rgba(194, 226, 250, 0.2);
+    }
+    
+    .service-item.selected {
+        border-color: #B7A3E3;
+        background: linear-gradient(135deg, rgba(183, 163, 227, 0.05) 0%, rgba(194, 226, 250, 0.05) 100%);
+    }
+    
+    .service-info {
+        flex: 1;
+    }
+    
+    .service-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #B7A3E3;
+    }
+    
+    .service-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        margin: 0;
+    }
+    
+    .service-name {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 1rem;
+    }
+    
+    .service-price {
+        color: #B7A3E3;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .service-description {
+        margin: 0.25rem 0 0 0;
+        color: #718096;
+        font-size: 0.85rem;
+    }
+    
+    .service-quantity {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .service-quantity label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .service-quantity input {
+        width: 70px;
+        padding: 0.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .total-section {
+        background: linear-gradient(135deg, rgba(183, 163, 227, 0.1) 0%, rgba(194, 226, 250, 0.1) 100%);
+        padding: 2rem;
+        border-radius: 16px;
+        margin: 2rem 0;
+        border: 2px solid rgba(183, 163, 227, 0.2);
+    }
+    
+    .total-label {
+        font-size: 1.1rem;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+    
+    .total-amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #B7A3E3;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #B7A3E3 0%, #9880d1 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(183, 163, 227, 0.3);
+    }
+    
+    .btn-primary:hover {
+        box-shadow: 0 6px 20px rgba(183, 163, 227, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #FFF1CB 0%, #f5e5a8 100%);
+        color: #7c5d10;
+        box-shadow: 0 4px 15px rgba(255, 241, 203, 0.3);
+    }
+    
+    .btn-secondary:hover {
+        box-shadow: 0 6px 20px rgba(255, 241, 203, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-success {
+        background: rgba(72, 187, 120, 0.15);
+        color: #22543d;
+        border: 1px solid rgba(72, 187, 120, 0.3);
+    }
+    
+    .alert-error {
+        background: rgba(255, 143, 143, 0.15);
+        color: #742a2a;
+        border: 1px solid rgba(255, 143, 143, 0.3);
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 3rem;
+        border-radius: 24px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlide 0.3s ease;
+    }
+    
+    @keyframes modalSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .modal-content h2 {
+        color: #48bb78;
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .modal-content p {
+        margin: 1.5rem 0;
+        line-height: 1.8;
+        color: #4a5568;
+    }
+    
+    @media (max-width: 768px) {
+        .billing-container {
+            padding: 1.5rem;
+        }
+        
+        .service-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .service-quantity {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .total-amount {
+            font-size: 2rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            margin: 10% 1rem;
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
+
+<div class="billing-header">
+    <h1>💰 Create New Bill</h1>
+</div>
+
+<div class="billing-container">
+    <div id="alertContainer"></div>
+    
+    <form id="billingForm" onsubmit="createBill(event)">
+        <div class="form-section">
+            <div class="form-section-title">
+                <span>👤</span> Customer Information
+            </div>
+            <div class="form-group">
+                <label for="customerId">Select Customer *</label>
+                <select id="customerId" required>
+                    <option value="">-- Choose a customer --</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer._id }}">{{ customer.name }} ({{ customer.phone }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-section-title">
+                <span>✂️</span> Select Services *
+            </div>
+            <div class="services-container">
+                {% for service in services %}
+                <div class="service-item" id="item_{{ service._id }}">
+                    <div class="service-info">
+                        <label class="service-label" for="service_{{ service._id }}">
+                            <input type="checkbox" 
+                                   class="service-checkbox"
+                                   id="service_{{ service._id }}" 
+                                   value="{{ service._id }}" 
+                                   data-price="{{ service.price }}"
+                                   data-name="{{ service.name }}"
+                                   onchange="updateTotal(); toggleServiceStyle('{{ service._id }}')">
+                            <div>
+                                <div class="service-name">{{ service.name }}</div>
+                                <div class="service-price">Rs. {{ "%.2f"|format(service.price) }}</div>
+                            </div>
+                        </label>
+                        <p class="service-description">{{ service.description }}</p>
+                    </div>
+                    <div class="service-quantity">
+                        <label for="qty_{{ service._id }}">Qty:</label>
+                        <input type="number" 
+                               id="qty_{{ service._id }}" 
+                               value="1" 
+                               min="1"
+                               onchange="updateTotal()">
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-section-title">
+                <span>💳</span> Payment Status
+            </div>
+            <div class="form-group">
+                <label for="billStatus">Status *</label>
+                <select id="billStatus" required>
+                    <option value="unpaid">Unpaid</option>
+                    <option value="paid">Paid</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="total-section">
+            <div class="total-label">Total Amount</div>
+            <div class="total-amount" id="totalAmount">Rs. 0.00</div>
+        </div>
+        
+        <div class="action-buttons">
+            <button type="submit" class="btn btn-primary">
+                <span>✓</span> Create Bill
+            </button>
+            <a href="{{ url_for('bills') }}" class="btn btn-secondary">
+                <span>📋</span> View All Bills
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <h2><span>✓</span> Bill Created Successfully!</h2>
+        <p id="billDetails" style="margin: 1.5rem 0;"></p>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="downloadPDF()">
+                <span>📄</span> Download PDF
+            </button>
+            <button class="btn btn-primary" onclick="createAnother()">
+                <span>➕</span> Create Another
+            </button>
+            <button class="btn btn-secondary" onclick="viewAllBills()">
+                <span>📋</span> View All Bills
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentBillId = null;
+
+function toggleServiceStyle(serviceId) {
+    const item = document.getElementById('item_' + serviceId);
+    const checkbox = document.getElementById('service_' + serviceId);
+    if (checkbox.checked) {
+        item.classList.add('selected');
+    } else {
+        item.classList.remove('selected');
+    }
+}
+
+function updateTotal() {
+    let total = 0;
+    const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+    
+    checkboxes.forEach(checkbox => {
+        const price = parseFloat(checkbox.dataset.price);
+        const qtyInput = document.getElementById('qty_' + checkbox.value);
+        const qty = parseInt(qtyInput.value) || 1;
+        total += price * qty;
+    });
+    
+    document.getElementById('totalAmount').textContent = `Rs. ${total.toFixed(2)}`;
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.innerHTML = `<span>${type === 'success' ? '✓' : '⚠'}</span> ${message}`;
+    document.getElementById('alertContainer').appendChild(alertDiv);
+    setTimeout(() => alertDiv.remove(), 4000);
+}
+
+async function createBill(event) {
+    event.preventDefault();
+    
+    const customerId = document.getElementById('customerId').value;
+    const status = document.getElementById('billStatus').value;
+    
+    const services = [];
+    const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+    
+    if (checkboxes.length === 0) {
+        showAlert('Please select at least one service', 'error');
+        return;
+    }
+    
+    checkboxes.forEach(checkbox => {
+        const qtyInput = document.getElementById('qty_' + checkbox.value);
+        services.push({
+            id: checkbox.value,
+            quantity: parseInt(qtyInput.value) || 1
+        });
+    });
+    
+    const data = {
+        customer_id: customerId,
+        services: services,
+        status: status
+    };
+    
+    try {
+        const response = await fetch('/api/bills', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            currentBillId = result.bill._id;
+            
+            const customerName = document.getElementById('customerId').selectedOptions[0].text;
+            document.getElementById('billDetails').innerHTML = `
+                <strong>Bill ID:</strong> ${currentBillId}<br>
+                <strong>Customer:</strong> ${customerName}<br>
+                <strong>Total Amount:</strong> Rs. ${result.bill.total_amount.toFixed(2)}<br>
+                <strong>Status:</strong> ${result.bill.status.toUpperCase()}
+            `;
+            
+            document.getElementById('successModal').style.display = 'block';
+        }
+    } catch (error) {
+        showAlert('Error creating bill', 'error');
+    }
+}
+
+function downloadPDF() {
+    window.open(`/bills/${currentBillId}/pdf`, '_blank');
+}
+
+function createAnother() {
+    document.getElementById('successModal').style.display = 'none';
+    document.getElementById('billingForm').reset();
+    document.querySelectorAll('.service-item').forEach(item => item.classList.remove('selected'));
+    updateTotal();
+    currentBillId = null;
+}
+
+function viewAllBills() {
+    window.location.href = "{{ url_for('bills') }}";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('successModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
